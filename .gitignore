@@ -1,0 +1,6 @@
+*.suo
+*.user
+Debug
+*.vc
+*.VC.VC.opendb
+*.db
