@@ -2,8 +2,12 @@
 typedef char value_type;
 
 class CircularBuffer {
-	value_type * buffer;
-	/*... реализация ... */
+	value_type* buffer;
+	int first;
+	int count;	
+	int length; // длина буфера
+
+	int linear_index(int i) const;
 public:
 	CircularBuffer();
 	~CircularBuffer();
@@ -15,8 +19,8 @@ public:
 	CircularBuffer(int capacity, const value_type & elem);
 
 	//Доступ по индексу. Не проверяют правильность индекса.
-	value_type & operator[](int i);
-	const value_type & operator[](int i) const;
+	value_type & operator [](int i);
+	const value_type & operator [](int i) const;
 
 	//Доступ по индексу. Методы бросают исключение в случае неверного индекса.
 	value_type & at(int i);
@@ -77,3 +81,4 @@ public:
 
 bool operator==(const CircularBuffer & a, const CircularBuffer & b);
 bool operator!=(const CircularBuffer & a, const CircularBuffer & b);
+
