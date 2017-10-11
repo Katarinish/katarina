@@ -32,6 +32,7 @@ CircularBuffer::CircularBuffer(int capacity) {
 
 //Creating bufffer with given opacity & filling it all the way with the given value
 CircularBuffer::CircularBuffer(int capacity, const value_type & elem) : CircularBuffer(capacity) {
+	//count = capacity;
 	for (int i = 0; i < capacity; i++) {
 		buffer[i] = elem;
 	 }

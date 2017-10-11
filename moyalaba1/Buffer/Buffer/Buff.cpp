@@ -4,6 +4,27 @@
 
 //#pragma comment (lib, "gtestd.lib")
 
+//My first unit test ever
+TEST(BufferTests, AssignmentOperator) {
+	CircularBuffer a(10, 'w');
+	CircularBuffer b(25);
+	b = a;
+	EXPECT_EQ(a, b);
+}
+
+//Checking Capacity&Value Buffer
+TEST(BufferTests, CapacityValueConstructor) {
+	CircularBuffer a(5, 'w');
+	for (int i = 0; i < 5; ++i) {
+		EXPECT_EQ(a[i], 'w');
+	}
+	EXPECT_TRUE(a.full());
+	EXPECT_FALSE(a.empty());
+	EXPECT_EQ(a.reserve(), 0);
+	EXPECT_EQ(a.size(), 5);
+	EXPECT_EQ(a.capacity(), 5);
+}
+
 TEST(BufferTests, CopyConstructor) {
   CircularBuffer a(10, 'a');
   CircularBuffer b = a;
