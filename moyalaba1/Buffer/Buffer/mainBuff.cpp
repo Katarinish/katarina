@@ -62,6 +62,7 @@ value_type & CircularBuffer::at(int i) {
 const value_type & CircularBuffer::at(int i) const {
 	if (i < length || i >= count)
 		throw std::invalid_argument("invalid index");
+	return operator[](i);
 }
 
 //Link to the first element
@@ -123,7 +124,7 @@ int CircularBuffer::reserve() const {
 }
 
 bool CircularBuffer::empty() const {
-	return reserve() == capacity();
+	return size() == 0;
 }
 
 //True if size == count
@@ -194,7 +195,7 @@ void CircularBuffer::swap(CircularBuffer & cb) {
 }
 
 //Resiz
-void CircularBuffer::resize(int new_size, const value_type & item = value_type()) {
+void CircularBuffer::resize(int new_size, const value_type & item) {
 	if (length > new_size) {
 		set_capacity(new_size);
 	}
@@ -229,7 +230,7 @@ void CircularBuffer::pop_front() {
 
 
 //Вставляет элемент item по индексу pos. Ёмкость буфера остается неизменной.
-void CircularBuffer::insert(int pos, const value_type & item = value_type()) {
+void CircularBuffer::insert(int pos, const value_type & item) {
 	at(pos) = item;
 }
 
@@ -237,7 +238,7 @@ void CircularBuffer::insert(int pos, const value_type & item = value_type()) {
 void CircularBuffer::erase(int first, int last) {
 	int to_move = last;
 	for (int i = first; i < last; ++i) {
-		at(i) = ~value_type();
+		at(i).~value_type();
 	}
 	for (int i = 0; i < (count - last); ++i) {
 		at(first + i) = at(last + i);
@@ -247,8 +248,8 @@ void CircularBuffer::erase(int first, int last) {
 
 //Очищает буфер.
 void CircularBuffer::clear() {
-	for (int i = 0; i < length; ++i) {
-		buffer[i] = ~value_type();
+	for (int i = 0; i < size(); ++i) {
+		(*this)[i].~value_type();
 	}
 	count = 0;
 }
@@ -264,8 +265,9 @@ bool operator==(const CircularBuffer & a, const CircularBuffer & b) {
 		if (a[i] != b[i])
 			return false;
 	}
+	return true;
 }
 
 bool operator!=(const CircularBuffer & a, const CircularBuffer & b) {
-	return false == (operator==(a, b));
+	return !(a == b);
 }
