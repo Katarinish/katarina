@@ -8,6 +8,7 @@ class CircularBuffer {
 	int length; // длина буфера
 
 	int linear_index(int i) const;
+
 public:
 	CircularBuffer();
 	~CircularBuffer();
