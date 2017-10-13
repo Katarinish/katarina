@@ -112,6 +112,11 @@ void CircularBuffer::rotate(int new_begin) {
 	buffer = linearize();
 }
 
+//Head index 
+int CircularBuffer::head_index() {
+	return first;
+}
+
 //Number of elements kept in the buffer
 int CircularBuffer::size() const {
 	return count;
@@ -164,9 +169,10 @@ void CircularBuffer::push_front(const value_type & v) {
 
 //New capacity
 void CircularBuffer::set_capacity(int new_capacity) {
-	//Вызываем деструктор и вызываем конструктор?
+
 	value_type* oldbuff = buffer;
 	buffer = new value_type[new_capacity];
+	length = new_capacity;
 	if (new_capacity > count) {
 		for (int i = 0; i < count; ++i) {
 			buffer[i] =oldbuff[i];
@@ -178,6 +184,7 @@ void CircularBuffer::set_capacity(int new_capacity) {
 		}
 		count = new_capacity;
 	}
+	delete[] oldbuff;
 }
 
 //Swaping items between Buffers
@@ -230,12 +237,13 @@ void CircularBuffer::pop_back() {
 
 void CircularBuffer::pop_front() {
 	first = linear_index(1);
+	count -= 1;
 }
 
 
 //Вставляет элемент item по индексу pos. Ёмкость буфера остается неизменной.
 void CircularBuffer::insert(int pos, const value_type & item) {
-	at(pos) = item;
+	buffer[linear_index(pos)] = item;
 }
 
 //Удаляет элементы из буфера в интервале [first, last).
