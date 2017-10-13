@@ -12,14 +12,17 @@ CircularBuffer::CircularBuffer() {
 	length = count = 0;
 }
 
-//Contstruction
+//CopyConstructor
 CircularBuffer::CircularBuffer(const CircularBuffer & cb) {
 	*this = (cb);
 }
 
-//Destruction
+//Destructor
 CircularBuffer::~CircularBuffer() {
 	delete[] buffer;
+	buffer = nullptr;
+	first = 0;
+	length = count = 0;
 }
 
 //Creating buffer with given opacity
@@ -55,13 +58,13 @@ const value_type & CircularBuffer::operator[](int i) const {
 
 //Index access. Checking if the index is correct or not
 value_type & CircularBuffer::at(int i) {
-	if (i < length || i >= count)
+	if (i < -length || i >= count)
 		throw std::invalid_argument("invalid index");
 	return operator[](i);
 }
 //Index access. Checking if the index is correct or not
 const value_type & CircularBuffer::at(int i) const {
-	if (i < length || i >= count)
+	if (i < -length || i >= count)
 		throw std::invalid_argument("invalid index");
 	return operator[](i);
 }
@@ -73,7 +76,7 @@ value_type & CircularBuffer::front() {
 
 //Link to the back element
 value_type & CircularBuffer::back() {
-	return at(count);
+	return at(count-1);
 }
 
 //Link to the first element
