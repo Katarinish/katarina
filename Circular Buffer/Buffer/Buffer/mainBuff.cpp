@@ -74,7 +74,7 @@ value_type & CircularBuffer::front() {
 	return at(first);
 }
 
-//Link to the back element
+//Link to the tail element
 value_type & CircularBuffer::back() {
 	return at(count-1);
 }
@@ -84,9 +84,9 @@ const value_type & CircularBuffer::front() const {
 	return at(first);
 }
 
-//Link to the back element
+//Link to the tail element
 const value_type & CircularBuffer::back() const {
-	return at(count);
+	return at(count-1);
 }
 
 //Making buffer go in line
@@ -107,7 +107,10 @@ bool CircularBuffer::is_linearized() const {
 }
 
 //Buffer Rotation
+//Same проверочка как и для at()
 void CircularBuffer::rotate(int new_begin) {
+	if (new_begin < -length || new_begin >= count)
+		throw std::invalid_argument("Not availiable to rotate due to invalid index");
 	first = new_begin;
 	buffer = linearize();
 }
@@ -205,7 +208,7 @@ void CircularBuffer::swap(CircularBuffer & cb) {
 	cb.first = move_first;
 }
 
-//Resiz
+//Resize
 void CircularBuffer::resize(int new_size, const value_type & item) {
 	if (length > new_size) {
 		set_capacity(new_size);
@@ -232,23 +235,42 @@ CircularBuffer & CircularBuffer::operator=(const CircularBuffer & cb) {
 }
 
 void CircularBuffer::pop_back() {
-	count--;
+	if (empty()) 
+		throw std::logic_error("You are trying to pop an empty buffer");
+	else 
+		count--;
 }
 
 void CircularBuffer::pop_front() {
-	first = linear_index(1);
-	count -= 1;
+	if (empty()) 
+		throw std::logic_error("You are trying to pop an empty buffer");
+	else {
+		first = linear_index(1);
+		count -= 1;
+	}
 }
 
 
 //Вставляет элемент item по индексу pos. Ёмкость буфера остается неизменной.
+//Again добавляем same проверочку как и для at()
 void CircularBuffer::insert(int pos, const value_type & item) {
-	buffer[linear_index(pos)] = item;
+	if (empty() || pos < -length || pos >= count)
+		throw std::logic_error("You are trying to insert item into invalid index ");
+
+	at(pos) = item;
+	//buffer[linear_index(pos)] = item;
 }
 
 //Удаляет элементы из буфера в интервале [first, last).
 void CircularBuffer::erase(int first, int last) {
-	int to_move = last;
+
+	if (empty())
+		throw std::logic_error("Empty buffer - nothing to erase");
+	if (last > count)
+		throw std::logic_error("Trying to erase nonexistent elements");
+	if (first < 0 || first >= last)
+		throw std::logic_error("Check parametrs you send into this method");
+
 	for (int i = first; i < last; ++i) {
 		at(i).~value_type();
 	}

@@ -46,7 +46,7 @@ TEST(BufferTests, CapacityConstructor) {
 TEST(BufferTests, Destructor) {
 	CircularBuffer a(10, 'a');
 	a.~CircularBuffer();
-	//EXPECT_EQ(a[0], nullptr);
+	//EXPECT_EQ(a[0] == nullptr);
 	EXPECT_EQ(a.capacity(), 0);
 	EXPECT_EQ(a.size(), 0);
 	EXPECT_EQ(a.reserve(), 0);
@@ -81,6 +81,15 @@ TEST(BufferTests, FrontBackValues) {
 	a.push_back('b');
 	a.push_back('c');
 
+	const CircularBuffer const_copy = a;
+	
+	EXPECT_TRUE(const_copy.full());
+	EXPECT_FALSE(const_copy.empty());
+	EXPECT_EQ(const_copy.reserve(), 0);
+	EXPECT_EQ(const_copy.size(), 3);
+	EXPECT_EQ(const_copy.front(), 'a');
+	EXPECT_EQ(const_copy.back(), 'c');
+
 	EXPECT_TRUE(a.full());
 	EXPECT_FALSE(a.empty());
 	EXPECT_EQ(a.reserve(), 0);
@@ -95,6 +104,7 @@ TEST(BufferTests, Linearization) {
 	a.push_back('b');
 
 	EXPECT_TRUE(a.head_index() == 1);
+
 	a.push_back('c');
 
 	EXPECT_TRUE(a.head_index()==2);
@@ -102,6 +112,7 @@ TEST(BufferTests, Linearization) {
 	EXPECT_EQ(a.back(), 'c');
 
 	a.linearize();
+
 	EXPECT_TRUE(a.head_index() == 0);
 	EXPECT_EQ(a.front(), 'a');
 }
@@ -129,6 +140,13 @@ TEST(BufferTests, Rotation) {
 	a.push_back('c');
 	a.rotate(2);
 
+	CircularBuffer b(5);
+	b.push_back('b');
+	b.push_back('c');
+
+	//Exception in this case 
+	//b.rotate(3);
+	
 	EXPECT_EQ(a.front(), 'a');
 	EXPECT_EQ(a.back(), 'c');
 	EXPECT_TRUE(a.head_index() == 0);
