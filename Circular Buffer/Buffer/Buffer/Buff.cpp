@@ -46,7 +46,7 @@ TEST(BufferTests, CapacityConstructor) {
 TEST(BufferTests, Destructor) {
 	CircularBuffer a(10, 'a');
 	a.~CircularBuffer();
-	//EXPECT_EQ(a[0] == nullptr);
+	//EXPECT_TRUE(a[0] == nullptr);
 	EXPECT_EQ(a.capacity(), 0);
 	EXPECT_EQ(a.size(), 0);
 	EXPECT_EQ(a.reserve(), 0);
@@ -285,8 +285,8 @@ TEST(BufferTests, Erase) {
 	a.push_back('a');
 	a.push_back('b');
 	a.push_back('c');
-
 	a.erase(1, 2);
+
 	EXPECT_EQ(a[1], 'c');
 	EXPECT_EQ(a[0], 'a');
 	EXPECT_EQ(a.size(), 2);
