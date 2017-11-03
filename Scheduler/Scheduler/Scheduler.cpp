@@ -8,6 +8,36 @@ std::string& Parser::GetFileName() const {
 	return file_name;
 }
 
+Task* Parser::CreateTask(std::string name, std::string params) {
+
+	if (name == "print_tasks") {
+		auto* newtask = new PrintTasks;
+		newtask->init(params);
+		return newtask;
+	}
+	if (name == "play_music") {
+		auto* newtask = new PlayMusic;
+		newtask->init(params);
+		return newtask;
+	}
+	if (name == "copy_file") {
+		auto* newtask = new CopyFile;
+		newtask->init(params);
+		return newtask;
+	}
+	if (name == "show_message") {
+		auto* newtask = new ShowMessage;
+		newtask->init(params);
+		return newtask;
+	}
+	if (name == "open") {
+		auto* newtask = new Open;
+		newtask->init(params);
+		return newtask;
+	}
+
+}
+
 std::map<std::string, Task*> Parser::DoParse() {
 
 	std::ifstream file_to_read("my_file.txt");
@@ -31,7 +61,8 @@ std::map<std::string, Task*> Parser::DoParse() {
 			std::string params = line.substr(pos1 + 1);
 
 			//Creating task to fill with params
-			Task new_task = CreateTask(name, params);
+			Task* new_task = CreateTask(name, params);
+
 
 
 

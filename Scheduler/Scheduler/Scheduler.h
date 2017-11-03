@@ -7,44 +7,6 @@
 
 using namespace std;
 
-struct Time {
-	int hours;
-	int minutes;
-	int seconds;
-};
-
-class Parser {
-
-	map<std::string, Task*> result;
-	std::string file_name;
-
-public:
-	Parser(const std::string file_name);
-	std::string& GetFileName() const;
-	std::map<std::string, Task*> DoParse();
-
-	Task& CreateTask( std::string name, std::string params);
-
-
-
-	//r->AddTask(time, ); put inside of an AddTaskToSchedule func?
-};
-
-class Runner {
-
-	std::map <std::string, std::vector<Task*>> daily_tasks;
-
-
-public:
-
-	void AddTask(int time, Task*);
-	void RunTask(int time);
-
-};
-
-
-
-
 class Task {
 public:
 	
@@ -129,3 +91,37 @@ class Open : Task {
 	}
 
 };
+
+
+class Parser {
+
+	map<std::string, Task*> result;
+	std::string file_name;
+
+public:
+	Parser(const std::string file_name);
+	std::string& GetFileName() const;
+	std::map<std::string, Task*> DoParse();
+
+	Task* CreateTask( std::string name, std::string params);
+
+
+
+	//r->AddTask(time, ); put inside of an AddTaskToSchedule func?
+};
+
+class Runner {
+
+	std::map <std::string, std::vector<Task*>> daily_tasks;
+
+
+public:
+
+	void AddTask(int time, Task*);
+	void RunTask(int time);
+
+};
+
+
+
+
