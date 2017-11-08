@@ -74,13 +74,38 @@ void Runner::RunTask(const std::string& time) {
 	auto& tasks = it->second;
 	for (auto* task : tasks) {
 		std::cout << task->name() << std::endl;
-		std::thread thread(&Task::run, task);
+		//std::thread thread(&Task::run, task);
+		std::thread  thread([task]{
+			task->run();
+		});
 	    thread.detach();
 		//task->run();
 	}
 }
 void Runner::SetTasks(const std::map <std::string, std::vector<Task*>>& tasks) {
 	tasks_to_run = tasks;
+}
+
+void Runner::RunTime() {
+	std::thread thread(&Runner::WatchTime, *this); //ok or not????????????
+	thread.join;
+}
+
+void Runner::WatchTime() {
+	//the number of seconds we have in 1 day
+	int end_of_the_day = 86400;
+	auto start = std::chrono::steady_clock::now();
+	auto inter_point = start;   //std::chrono::time_point<std::chrono::system_clock> finish;
+	auto current_time = std::chrono::duration_cast<std::chrono::seconds>(inter_point - start).count();
+	while ( current_time <= end_of_the_day ) {
+		RunTask( current_time ); 
+		//waiting till 1s is gone
+		std::this_thread::sleep_for(std::chrono::seconds(1)); 
+	    //getting new timepoin
+		inter_point = std::chrono::steady_clock::now(); 
+        //how many seconds has passed since the beginning of the day
+		current_time = std::chrono::duration_cast<std::chrono::seconds>(inter_point - start).count();
+	}
 }
 
 

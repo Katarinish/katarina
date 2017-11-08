@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 #include <thread>
+#include <chrono>
+#include <ctime>
 
 
 using namespace std;
@@ -126,9 +128,10 @@ class Runner {
 
 
 public:
-
 	void SetTasks(const std::map <std::string, std::vector<Task*>>& tasks);
+	void WatchTime();
 	void RunTask(const std::string& time);
+	void RunTime();
 };
 
 
