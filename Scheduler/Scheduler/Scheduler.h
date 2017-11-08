@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <thread>
 
 
 using namespace std;
@@ -17,24 +18,23 @@ public:
 
 };
 
-void run_task(Task &t) {
-	t.run();
-}
 
 class PlayMusic : public Task {
 
-	std::vector<std::string> files_to_play;
-	//std::map<int,string>
-	//int count
+	std::string file_to_play;
+
 
 public:
 
-	PlayMusic(const std::string& params) {
-		//Initialization here
-	}
+	PlayMusic() {
 
-	void run() override {
+	};
 
+	void init(const std::string& params) override;
+	void run() override;
+	
+	std::string name() const override {
+		return "play_music";
 	}
 
 };
@@ -52,17 +52,28 @@ class PrintTasks : public Task {
 	void run() override {
 
 	}
+
+	void init(const std::string& params) override {
+
+	}
+
+	std::string name() const override {
+		return "print_task";
+	}
 };
 
-class CopyFile : public Task {
+class CopyFileTask : public Task {
 
-	int count;
-	std::map<int, string> files_to_copy;
+	 std::string from;
+	 std::string to;
 
-	public	:
+public	:
 
-	void run() override {
+	void run() override;
+	void init(const std::string& params) override;
 
+	std::string name() const override {
+		return "copy_file";
 	}
 
 };
@@ -73,23 +84,26 @@ class ShowMessage : public Task {
 
 	public	:
 
-	void run() override {
+	void run() override;
+	void init(const std::string& params) override;
 
+	std::string name() const override {
+		return "show_message";
 	}
-
 };
 
-class Open : Task {
+class Open : public Task {
 
 	int count;
-	std::map<int, string> files_to_open;
+	std::string file_to_open;
 
-	public	:
+public	:
+	void run() override;
+	void init(const std::string& params) override;
 
-	void run() override {
-
+	std::string name() const override {
+		return "open";
 	}
-
 };
 
 
@@ -99,27 +113,22 @@ class Parser {
 	std::string file_name;
 
 public:
-	Parser(const std::string file_name);
-	std::string& GetFileName() const;
-	std::map<std::string, Task*> DoParse();
+	Parser(const std::string& file_name);
+	const std::string& GetFileName() const;
+	std::map<std::string, vector<Task*>> DoParse();
 
 	Task* CreateTask( std::string name, std::string params);
-
-
-
-	//r->AddTask(time, ); put inside of an AddTaskToSchedule func?
 };
 
 class Runner {
 
-	std::map <std::string, std::vector<Task*>> daily_tasks;
+	std::map <std::string, std::vector<Task*>> tasks_to_run;
 
 
 public:
 
-	void AddTask(int time, Task*);
-	void RunTask(int time);
-
+	void SetTasks(const std::map <std::string, std::vector<Task*>>& tasks);
+	void RunTask(const std::string& time);
 };
 
 
