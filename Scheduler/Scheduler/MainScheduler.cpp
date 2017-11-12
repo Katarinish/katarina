@@ -11,8 +11,7 @@ int main(int argc, char* argv[])
 	auto tasks = parser.DoParse();
 	Runner runner;
 	runner.SetTasks(tasks);
-	runner.RunTask("21:30:15");
-	//runner.RunTask("10:00:00");
+	runner.RunTime();
  	system("pause");
 	return 0;
 }

@@ -1,5 +1,6 @@
 #include "Scheduler.h"
 #include <windows.h>
+#include <stdio.h>
 #include <ShellAPI.h>
 
 //Parser constructor
@@ -42,15 +43,25 @@ Task* Parser::CreateTask(std::string name, std::string params) {
 	return nullptr;
 
 }
-//Result of parsing 
-std::map<std::string, vector<Task*>> Parser::DoParse() {
 
-	std::map<std::string, vector<Task*>> result;
+int Parser::ConvertToTime(const std::string& time) {
+	int h = 0;
+	int m = 0;
+	int s = 0;
+	sscanf_s(time.c_str() , "%02d:%02d:%02d", &h, &m, &s);
+	int res = h * 3600 + m * 60 + s;
+	return res;
+}
+
+
+//Result of parsing 
+std::map<int, vector<Task*>> Parser::DoParse() {
+
+	std::map<int, vector<Task*>> result;
 	std::ifstream file_to_read(GetFileName());
 	while (file_to_read) {
 
 		std::string time, name, params;
-		//getline(file_to_read, line);
 		file_to_read >> time >> name;
 		if (name.empty() || time.empty())
 			break;
@@ -59,7 +70,7 @@ std::map<std::string, vector<Task*>> Parser::DoParse() {
 		//Creating task to fill with params
 		Task* new_task = CreateTask(name, params);
 
-		result[time].push_back(new_task);
+		result[ConvertToTime(time)].push_back(new_task);
 	}
 	return result;
 
@@ -67,7 +78,7 @@ std::map<std::string, vector<Task*>> Parser::DoParse() {
 
 
 //Runner initialization and etc
-void Runner::RunTask(const std::string& time) {
+/*void Runner::RunTask(int time) {
 	auto it = tasks_to_run.find(time);
 	if (it == tasks_to_run.end())
 		return;
@@ -75,38 +86,74 @@ void Runner::RunTask(const std::string& time) {
 	for (auto* task : tasks) {
 		std::cout << task->name() << std::endl;
 		//std::thread thread(&Task::run, task);
-		std::thread  thread([task]{
+		std::thread  thread([task](){
 			task->run();
 		});
 	    thread.detach();
-		//task->run();
 	}
+}*/
+
+
+
+static Runner& Runner::GetInstace() {
+	static Runner r;
+	return r;
 }
-void Runner::SetTasks(const std::map <std::string, std::vector<Task*>>& tasks) {
+
+void Runner::SetTasks(const std::map <int, std::vector<Task*>>& tasks) {
 	tasks_to_run = tasks;
 }
 
-void Runner::RunTime() {
-	std::thread thread(&Runner::WatchTime, *this); //ok or not????????????
-	thread.join;
+std::chrono::steady_clock::time_point get_day_start() {
+	time_t now =
+		std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+	tm t;
+	localtime_s(&t, &now);
+	t.tm_hour = 0;
+	t.tm_min = 0;
+	t.tm_sec = 0;
+
+	auto day_start = std::chrono::system_clock::from_time_t(mktime(&t));
+
+	auto sdy_now = std::chrono::steady_clock::now();
+	auto sys_now = std::chrono::system_clock::now();
+	return day_start - sys_now + sdy_now;
 }
 
-void Runner::WatchTime() {
-	//the number of seconds we have in 1 day
-	int end_of_the_day = 86400;
-	auto start = std::chrono::steady_clock::now();
-	auto inter_point = start;   //std::chrono::time_point<std::chrono::system_clock> finish;
-	auto current_time = std::chrono::duration_cast<std::chrono::seconds>(inter_point - start).count();
-	while ( current_time <= end_of_the_day ) {
-		RunTask( current_time ); 
-		//waiting till 1s is gone
-		std::this_thread::sleep_for(std::chrono::seconds(1)); 
-	    //getting new timepoin
-		inter_point = std::chrono::steady_clock::now(); 
-        //how many seconds has passed since the beginning of the day
-		current_time = std::chrono::duration_cast<std::chrono::seconds>(inter_point - start).count();
+void Runner::WatchTime(int prev, int curr) {
+
+	auto itlow = tasks_to_run.lower_bound(prev);
+	auto itup = tasks_to_run.upper_bound(curr - 1);
+
+	for (; itlow != itup; ++itlow) {
+		auto& tasks_to_run = itlow->second;
+		for (auto* task : tasks_to_run) {
+			std::cout << task->name() << std::endl;
+			std::thread  thread([task]() {
+				task->run();
+			});
+			thread.detach();
+		}
 	}
+
+
 }
+
+void Runner::RunTime() {
+	auto start = get_day_start();
+	int prev_time = 0;
+
+	while (1) {
+		auto curr = std::chrono::steady_clock::now();
+		int curr_time = std::chrono::duration_cast<std::chrono::seconds>(curr - start).count();
+		WatchTime(prev_time, curr_time);
+		prev_time = curr_time;
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
+}
+
 
 
 //PlayMusic stuff
@@ -147,4 +194,38 @@ void Open::run() {
 }
 void Open::init(const std::string& params) {
 	file_to_open = params;
+}
+
+void Runner::PrintTasks(int from, int to) {
+
+	auto itlow = tasks_to_run.lower_bound(from);
+	auto itup = tasks_to_run.upper_bound(to);
+
+	for (; itlow != itup; ++itlow) {
+		auto& tasks_to_run = itlow->second;
+		for (auto* task : tasks_to_run) {
+			std::cout << task->name() << std::endl;
+		}
+	}
+
+}
+
+void PrintTasks::run() {
+	Runner::GetInstace().PrintTasks(from, to);
+
+
+}
+void PrintTasks::init(const std::string& params) {
+
+	int th = 0;
+	int tm = 0;
+	int ts = 0;
+	int fh = 0;
+	int fm = 0;
+	int fs = 0;
+	sscanf_s(params.c_str(), "%02d:%02d:%02d%:02d:%02d:%02d", &th, &tm, &ts, &fh, &fm, &fs );
+
+	from = th * 3600 + tm * 60 + ts;
+	to = fh * 3600 + fm * 60 + fs;
+
 }

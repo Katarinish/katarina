@@ -6,6 +6,8 @@
 #include <thread>
 #include <chrono>
 #include <ctime>
+#include <iostream>
+#include <stdio.h>
 
 
 using namespace std;
@@ -19,7 +21,6 @@ public:
 	virtual void run() = 0;
 
 };
-
 
 class PlayMusic : public Task {
 
@@ -43,21 +44,17 @@ public:
 
 class PrintTasks : public Task {
 
-	//The number of tasks to print
-	int count; 
-	//Here we keep the time of tasks we need to print
-	std::map<int, int> tasks_to_print;
+	int from;
+	int to;
+
+
 
 
 	public	:
 
-	void run() override {
+		void run() override;
 
-	}
-
-	void init(const std::string& params) override {
-
-	}
+	void init(const std::string& params) override;
 
 	std::string name() const override {
 		return "print_task";
@@ -117,22 +114,25 @@ class Parser {
 public:
 	Parser(const std::string& file_name);
 	const std::string& GetFileName() const;
-	std::map<std::string, vector<Task*>> DoParse();
-
+	std::map<int, vector<Task*>> DoParse();
 	Task* CreateTask( std::string name, std::string params);
+	int ConvertToTime(const std::string& time);
 };
 
 class Runner {
 
-	std::map <std::string, std::vector<Task*>> tasks_to_run;
-
+	std::map <int, std::vector<Task*>> tasks_to_run;
+	Runner() = default;
+	void WatchTime(int prev, int curr);
 
 public:
-	void SetTasks(const std::map <std::string, std::vector<Task*>>& tasks);
-	void WatchTime();
-	void RunTask(const std::string& time);
+	void SetTasks(const std::map <int, std::vector<Task*>>& tasks);
+	static Runner& GetInstace();
 	void RunTime();
+	void PrintTasks(int from, int to);
 };
+
+
 
 
 
