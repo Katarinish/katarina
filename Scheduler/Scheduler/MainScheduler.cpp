@@ -9,9 +9,9 @@ int main(int argc, char* argv[])
 	}
 	Parser parser(argv[1]);
 	auto tasks = parser.DoParse();
-	Runner runner;
-	runner.SetTasks(tasks);
-	runner.RunTime();
+	
+	Runner::GetInstace().SetTasks(tasks);
+	Runner::GetInstace().RunTime();
  	system("pause");
 	return 0;
 }

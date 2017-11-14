@@ -43,7 +43,6 @@ Task* Parser::CreateTask(std::string name, std::string params) {
 	return nullptr;
 
 }
-
 int Parser::ConvertToTime(const std::string& time) {
 	int h = 0;
 	int m = 0;
@@ -77,25 +76,7 @@ std::map<int, vector<Task*>> Parser::DoParse() {
 }
 
 
-//Runner initialization and etc
-/*void Runner::RunTask(int time) {
-	auto it = tasks_to_run.find(time);
-	if (it == tasks_to_run.end())
-		return;
-	auto& tasks = it->second;
-	for (auto* task : tasks) {
-		std::cout << task->name() << std::endl;
-		//std::thread thread(&Task::run, task);
-		std::thread  thread([task](){
-			task->run();
-		});
-	    thread.detach();
-	}
-}*/
-
-
-
-static Runner& Runner::GetInstace() {
+ Runner& Runner::GetInstace() {
 	static Runner r;
 	return r;
 }
@@ -129,11 +110,12 @@ void Runner::WatchTime(int prev, int curr) {
 	for (; itlow != itup; ++itlow) {
 		auto& tasks_to_run = itlow->second;
 		for (auto* task : tasks_to_run) {
-			std::cout << task->name() << std::endl;
-			std::thread  thread([task]() {
+			//std::cout << task->name() << std::endl;
+			std::thread thread([task]() {
 				task->run();
 			});
-			thread.detach();
+			//thread.detach();
+			SavedThreads.push_back(std::move(thread));
 		}
 	}
 
@@ -143,10 +125,15 @@ void Runner::WatchTime(int prev, int curr) {
 void Runner::RunTime() {
 	auto start = get_day_start();
 	int prev_time = 0;
+	int end_of_the_day = 86400;
 
 	while (1) {
 		auto curr = std::chrono::steady_clock::now();
 		int curr_time = std::chrono::duration_cast<std::chrono::seconds>(curr - start).count();
+		if (curr_time == end_of_the_day || curr_time > end_of_the_day ) {
+			WatchTime(prev_time, end_of_the_day);
+			break;
+		}
 		WatchTime(prev_time, curr_time);
 		prev_time = curr_time;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -188,12 +175,31 @@ void ShowMessage::run() {
 }
 
 //Open stuff 
-
 void Open::run() {
 	ShellExecuteA(NULL, "open", file_to_open.c_str(), NULL, NULL, SW_RESTORE);
 }
 void Open::init(const std::string& params) {
 	file_to_open = params;
+}
+
+//PrintTasks stuff
+void PrintTasks::run() {
+	Runner::GetInstace().PrintTasks(from, to);
+}
+void PrintTasks::init(const std::string& params) {
+
+	int th = 0;
+	int tm = 0;
+	int ts = 0;
+	int fh = 0;
+	int fm = 0;
+	int fs = 0;
+
+	sscanf_s(params.c_str(), "%02d:%02d:%02d %02d:%02d:%02d", &th, &tm, &ts, &fh, &fm, &fs );
+
+	from = th * 3600 + tm * 60 + ts;
+	to = fh * 3600 + fm * 60 + fs;
+
 }
 
 void Runner::PrintTasks(int from, int to) {
@@ -210,22 +216,14 @@ void Runner::PrintTasks(int from, int to) {
 
 }
 
-void PrintTasks::run() {
-	Runner::GetInstace().PrintTasks(from, to);
-
-
-}
-void PrintTasks::init(const std::string& params) {
-
-	int th = 0;
-	int tm = 0;
-	int ts = 0;
-	int fh = 0;
-	int fm = 0;
-	int fs = 0;
-	sscanf_s(params.c_str(), "%02d:%02d:%02d%:02d:%02d:%02d", &th, &tm, &ts, &fh, &fm, &fs );
-
-	from = th * 3600 + tm * 60 + ts;
-	to = fh * 3600 + fm * 60 + fs;
-
+Runner::~Runner() {
+	for (auto& it : SavedThreads) {
+		if (it.joinable())
+			it.join();
+	}
+	for (auto& v : tasks_to_run) {
+		for (auto* t : v.second) {
+			delete t;
+		}
+	}
 }

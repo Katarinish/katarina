@@ -108,7 +108,7 @@ public	:
 
 class Parser {
 
-	map<std::string, Task*> result;
+	std::map<std::string, Task*> result;
 	std::string file_name;
 
 public:
@@ -121,15 +121,22 @@ public:
 
 class Runner {
 
+	friend class PrintTasks;
+
 	std::map <int, std::vector<Task*>> tasks_to_run;
-	Runner() = default;
+	std::vector <std::thread> SavedThreads;
+	
 	void WatchTime(int prev, int curr);
+	void PrintTasks(int from, int to);
+
+	Runner() = default;
+	~Runner();
+
 
 public:
 	void SetTasks(const std::map <int, std::vector<Task*>>& tasks);
 	static Runner& GetInstace();
 	void RunTime();
-	void PrintTasks(int from, int to);
 };
 
 
