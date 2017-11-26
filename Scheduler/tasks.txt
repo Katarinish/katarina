@@ -1,0 +1,8 @@
+08:00:00 print_tasks 09:30:00 14:00:00
+09:30:00 play_music c:/music/wakeup.wav
+10:00:00 copy_file c:/files/a.txt c:/files/1.txt
+10:00:00 copy_file c:/files/b.txt c:/files/2.txt
+13:00:00 show_message Обед!
+17:07:00 show_message Ура!
+21:08:15 show_message Пора спать
+21:08:15 open https://www.youtube.com/channel/UCoVS2PU1QJpXrO9oTyke2cw
