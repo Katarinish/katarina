@@ -146,6 +146,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Arkanoid.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Arkanoid.cpp" />
+    <ClCompile Include="MainArk.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

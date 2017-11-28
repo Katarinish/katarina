@@ -14,22 +14,30 @@ class Block {
 	int id;
 	int width;
 	int height;
-	Shape shape;
+	Shape shape; // pointer or object?
 
 public:
-	virtual ~Block() {};
 	void SetID(int id);
-	int GetID();
+	int GetID() {
+		return id;
+	}
 	void SetW(int width);
 	void SetH(int height);
-	virtual Shape Create_Shape() = 0;
+	void SetShape(Shape& shape); //Shape& or just Shape? put inside of a createshape func?
+	void ResizeShape(Shape& shape, int w, int h);
+	virtual Shape Create_Shape() = 0; // return Shape& ?
+	virtual ~Block() {};
+	
 
 };
 
 class Brick : public Block {
 
+	int brick_type;
+
 	public:
-	std::vector<std::vector<int>> Create_Shape() override;
+		//определить конструктор по полю brick_type ?
+	Shape Create_Shape() override;
 };
 
 class Wall : public Block {
@@ -42,13 +50,14 @@ class Wall : public Block {
 class Ball : public Block {
 	int vx;
 	int vy;
+	int acceleration;
 
 public:
 	Shape Create_Shape() override;
 
 };
 
-class Platform : public Block {
+class Board : public Block {
 	int vx;
 	int dir;
 	int size;
@@ -71,7 +80,7 @@ public:
 
 	void AddBlock(int x, int y, Block* Block_to_add);
 	Block* GetBlock(int x, int y);
-	void Set_W_H(int w, int h);
+	void Set_WH(int w, int h);
 	int GetWidth() const {
 		return width;
 	}
@@ -84,7 +93,7 @@ class Arkanoid {
 
 	GameField game_field;
 	Ball ball;
-	Platform platform;
+	Board board;
 
 	bool in_game;
 	char state;
