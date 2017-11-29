@@ -9,12 +9,28 @@
 #include <stdio.h>
 
 using Shape = std::vector<std::vector<int>>;
+typedef enum ShapeType {
+	WALL,
+	BALL,
+	BOARD,
+	REGULAR,
+	H_LETTER,
+	CROSS,
+	T_LETTER,
+	P_LETTER,
+
+} shape_type;
+
 
 class Block {
 	int id;
 	int width;
 	int height;
-	Shape shape; // pointer or object?
+
+protected:
+
+	void ResizeShape(Shape& shape, int w, int h);
+	shape_type block_shape;
 
 public:
 	void SetID(int id);
@@ -23,9 +39,11 @@ public:
 	}
 	void SetW(int width);
 	void SetH(int height);
-	void SetShape(Shape& shape); //Shape& or just Shape? put inside of a createshape func?
-	void ResizeShape(Shape& shape, int w, int h);
-	virtual Shape Create_Shape() = 0; // return Shape& ?
+	shape_type GetBlockShape() {
+		return block_shape;
+	}
+	virtual Shape Create_Shape() = 0;
+	Block(const shape_type& SHAPE);
 	virtual ~Block() {};
 	
 
@@ -33,38 +51,62 @@ public:
 
 class Brick : public Block {
 
-	int brick_type;
+	
 
 	public:
-		//определить конструктор по полю brick_type ?
 	Shape Create_Shape() override;
 };
 
 class Wall : public Block {
 
 	public:
+	Wall() : Block(WALL) {}
     Shape Create_Shape() override;
 
 };
 
 class Ball : public Block {
+	int x;
+	int y;
 	int vx;
 	int vy;
 	int acceleration;
 
 public:
+	Ball() : Block(BALL) {}
 	Shape Create_Shape() override;
 
 };
 
 class Board : public Block {
+	int x;
+	int y;
 	int vx;
 	int dir;
 	int size;
 	int pos_x;
 
 public:
+	Board() : Block(BOARD) {}
 	Shape Create_Shape() override;
+	void SetV(int v) {
+		vx = v;
+	}
+	void SetX(int x) {
+		this->x = x;
+	}
+	void SetY(int y) {
+		this->y = y;
+	}
+	int GetV() {
+		return vx;
+	}
+	int GetX() {
+		return x;
+	}
+	int GetY() {
+		return y;
+	}
 	void ThrowBall();
 
 };
@@ -79,6 +121,7 @@ class GameField {
 public:
 
 	void AddBlock(int x, int y, Block* Block_to_add);
+	void DeleteBlock(int x, int y, Block* Block_to_delete); //описать
 	Block* GetBlock(int x, int y);
 	void Set_WH(int w, int h);
 	int GetWidth() const {
@@ -105,7 +148,7 @@ public:
 	void Run();
 	void Init(int w, int h);
 	void Draw();
-	void ChangePosition();
+	void ChangePosition(double dt); //put inside of an updateworld func
 	void UpdateWorld(double dt);
 	
 	void SetCondition(bool condition);

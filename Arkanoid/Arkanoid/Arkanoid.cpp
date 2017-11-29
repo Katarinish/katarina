@@ -11,8 +11,45 @@ void Block::SetW(int width) {
 void Block::SetH(int height) {
 	this->height = height;
 }
-void Block::SetShape(Shape& shape) {
-	this->shape = shape;
+Block::Block(const shape_type& SHAPE) {
+	block_shape = SHAPE;
+	switch (SHAPE) {
+		case WALL:
+			width = 1;
+			height = 1;
+			break;
+		case BALL:
+			width = 2;
+			height = 2;
+			break;
+		case BOARD:
+			width = 4;
+			height = 1;
+			break;
+		case REGULAR:
+			width = 1;
+			height = 4;
+			break;
+		case H_LETTER:
+			width = 3;
+			height = 3;
+			break;
+		case CROSS:
+			width = 3;
+			height = 3;
+			break;
+		case T_LETTER:
+			width = 3;
+			height = 2;
+			break;
+		case P_LETTER:
+			width = 3;
+			height = 3;
+			break;
+		default:
+			break;
+	}
+
 }
 void Block::ResizeShape(Shape& shape, int w, int h) {
 	shape.resize(h);
@@ -30,29 +67,28 @@ Shape Wall::Create_Shape() {
 
 //Brick methods
 Shape Brick::Create_Shape() {
-	int br_type;
-	Shape res; // сразу же set_shape? тогда в ресайз не передаем ссылку на шейп
+	shape_type br_type = GetBlockShape();
+	Shape res;
 
-	br_type = rand() % 5 + 1; //1..5
 	switch (br_type) {
-		case 1:
-			ResizeShape(res, 4, 1); //через GetW & GetH? or put SetWH inside of case or constructor?
+		case REGULAR:
+			ResizeShape(res, 4, 1); //
 			int i = 0;
 			while (i < 4) {
 				res[0][i++] = GetID();
 			}
 			break;
-		case 2:
+		case H_LETTER:
 			ResizeShape(res, 3, 3);
 			int i = 0;
 			while (i < 3) {
-				res[i][0] = GetID();// id?
+				res[i][0] = GetID();
 				res[i][2] = GetID();
 				i++;
 			}
 			res[1][1] = GetID();
 			break;
-		case 3:
+		case CROSS:
 			ResizeShape(res, 3, 3);
 			int i = 0;
 			while (i < 3) {
@@ -61,21 +97,22 @@ Shape Brick::Create_Shape() {
 				i++;
 			}
 			break;
-		case 4:
+		case T_LETTER:
 			ResizeShape(res, 2, 3);
 			int i = 0;
 			while (i < 3) {
 				res[0][i++] = GetID();
 			}
-			res[1][1];
+			res[1][1] = GetID();
 			break;
-		case 5:
-			ResizeShape(res, 2, 3);
+		case P_LETTER:
+			ResizeShape(res, 3, 3);
 			int i = 0;
 			while (i < 3) {
 				res[0][i] = GetID();
 				res[i][0] = GetID();
 				res[i][2] = GetID();
+				i++;
 			}
 			break;
 		default:
@@ -88,8 +125,28 @@ Shape Brick::Create_Shape() {
 
 
 //Board methods
+Shape Board::Create_Shape() {
+	Shape res;
+	ResizeShape(res, 4, 1); 
+    int i = 0;
+	while (i < 4) {
+		res[0][i++] = GetID();
+	}
+	return res;
+}
 
 //Ball methods
+Shape Ball::Create_Shape() {
+	Shape res;
+	ResizeShape(res, 2, 2); 
+	int i = 0;
+	while (i < 2) {
+		res[0][i] = GetID();
+		res[1][i] = GetID();
+		i++;
+	}
+	return res;
+}
 
 //GameField methods
 
@@ -118,6 +175,9 @@ void GameField::Set_WH(int w, int h) {
 		it.resize(w);
 	}
 }
+void GameField::DeleteBlock(int x, int y, Block* Block_to_delete) {
+
+}
 
 //Arkanoid methods
 void Arkanoid::SetCondition(bool cond) {
@@ -126,24 +186,35 @@ void Arkanoid::SetCondition(bool cond) {
 bool Arkanoid::ReadyToExit() {
 	return ready_to_exit;
 }
-
-void Arkanoid::ChangePosition() {
+void Arkanoid::ChangePosition(double dt) {
 	std::cin >> state;
+	int new_x = 0;
 	switch (state) {
+		//left
 		case 'd' :
-
-
-		
+			if (board.GetV() < 0)
+				board.SetV(board.GetV()*(-1));
+			new_x = board.GetX() + board.GetV()*dt;
+			game_field.DeleteBlock(board.GetX(), board.GetY(), &board);
+			board.SetX(new_x);
+			game_field.AddBlock(board.GetX(), board.GetY(), &board);
+			break;
+		//right
 		case 'a' :
-
-		
+			if (board.GetV() > 0)
+				board.SetV(board.GetV*(-1));
+			new_x = board.GetX() + board.GetV()*dt;
+			game_field.DeleteBlock(board.GetX(), board.GetY(), &board);
+			board.SetX(new_x);
+			game_field.AddBlock(board.GetX(), board.GetY(), &board);
+			break;
 		case ' ' :
 			if (!in_game)
 				board.ThrowBall();
-			else 
+			else {
 				//pause
-
-
+			}
+			break;
 		default :
 
 	}
@@ -158,8 +229,7 @@ void Arkanoid::Init(int w, int h) {
 
 	auto* wall_block = new Wall;
 	wall_block->SetID(uniq_id);
-	wall_block->SetW(1);
-	wall_block->SetH(1);
+
 	for (int x = 0; x < w; x++) {
 		game_field.AddBlock(x, 0, wall_block);
 	}
@@ -173,7 +243,7 @@ void Arkanoid::Run() {
 	Init(100,100);
 	while (ReadyToExit()) {
 		Draw();
-		ChangePosition();
+		ChangePosition(dt);
 		UpdateWorld(dt);
 	}
 
