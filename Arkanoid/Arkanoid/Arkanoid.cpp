@@ -238,6 +238,57 @@ void Arkanoid::Init(int w, int h) {
 		game_field.AddBlock(w - 1, y, wall_block);
 	}
 }	
+void Arkanoid::UpdateWorld(double dt) {
+	double time = 0;
+	Vector bumped_block;
+	double acc = ball.GetAcc();
+	
+
+	for (time = 0; time <= dt; time += 0.001) {
+		auto pos = ball.GetPos();
+		auto prev_pos = pos;
+		auto vel = ball.GetVel();
+		auto ball_vel = vel;
+		Vector crossed_point;
+		vel *= dt;
+		pos += vel;
+
+		auto* b = game_field.GetBlock(pos.X(), pos.Y());
+		if (!b) {
+			continue;
+		}
+		auto first_line = Find_line(pos, prev_pos); //ball's line
+		auto block_pos = b->GetPos();
+		
+		crossed_side SIDE = block_pos.CrossedSide(first_line);
+		switch (SIDE) {
+			case TOP:
+				ball.SetVel(Vector(ball_vel.X(), -ball_vel.Y()));
+
+				break;
+
+			case BOTTOM:
+				ball.SetVel(Vector(ball_vel.X(), -ball_vel.Y()));
+
+				break;
+
+			case LEFT:
+				ball.SetVel(Vector(-ball_vel.X(), ball_vel.Y()));
+				break;
+
+			case RIGHT:
+				ball.SetVel(Vector(-ball_vel.X(), ball_vel.Y()));
+				break;
+
+		default:
+			break;
+		}
+
+
+	}
+	
+
+}
 
 void Arkanoid::Run() {
 	Init(100,100);
@@ -248,3 +299,4 @@ void Arkanoid::Run() {
 	}
 
 };
+

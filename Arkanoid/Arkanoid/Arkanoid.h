@@ -7,6 +7,7 @@
 #include <string>
 #include <thread>
 #include <stdio.h>
+#include "utility.h"
 
 using Shape = std::vector<std::vector<int>>;
 typedef enum ShapeType {
@@ -23,6 +24,7 @@ typedef enum ShapeType {
 
 
 class Block {
+	Vector pos;
 	int id;
 	int width;
 	int height;
@@ -39,6 +41,9 @@ public:
 	}
 	void SetW(int width);
 	void SetH(int height);
+	Vector GetPos() {
+		return pos;
+	}
 	shape_type GetBlockShape() {
 		return block_shape;
 	}
@@ -66,21 +71,25 @@ class Wall : public Block {
 };
 
 class Ball : public Block {
-	int x;
-	int y;
-	int vx;
-	int vy;
-	int acceleration;
+	Vector vel;
+	double acceleration; //добавляем ускорение 
 
 public:
 	Ball() : Block(BALL) {}
 	Shape Create_Shape() override;
+	Vector GetVel() {
+		return vel;
+	}
+	double GetAcc() {
+		return acceleration;
+	}
+	void SetVel(const Vector& v) {
+		vel = v;
+	}
 
 };
 
 class Board : public Block {
-	int x;
-	int y;
 	int vx;
 	int dir;
 	int size;
@@ -92,21 +101,10 @@ public:
 	void SetV(int v) {
 		vx = v;
 	}
-	void SetX(int x) {
-		this->x = x;
-	}
-	void SetY(int y) {
-		this->y = y;
-	}
 	int GetV() {
 		return vx;
 	}
-	int GetX() {
-		return x;
-	}
-	int GetY() {
-		return y;
-	}
+
 	void ThrowBall();
 
 };
