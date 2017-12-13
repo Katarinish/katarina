@@ -51,12 +51,6 @@ Block::Block(const shape_type& SHAPE) {
 	}
 
 }
-void Block::ResizeShape(Shape& shape, int w, int h) {
-	shape.resize(h);
-	for (auto& it : shape) {
-		it.resize(w);
-	}
-}
 
 //Wall methods
 Shape Wall::Create_Shape() {
@@ -124,16 +118,6 @@ Shape Brick::Create_Shape() {
 }
 
 
-//Board methods
-Shape Board::Create_Shape() {
-	Shape res;
-	ResizeShape(res, 4, 1); 
-    int i = 0;
-	while (i < 4) {
-		res[0][i++] = GetID();
-	}
-	return res;
-}
 
 //Ball methods
 Shape Ball::Create_Shape() {
@@ -146,37 +130,6 @@ Shape Ball::Create_Shape() {
 		i++;
 	}
 	return res;
-}
-
-//GameField methods
-
-void GameField::AddBlock(int x, int y, Block* block) {
-	AllBlocks[block->GetID()] = block;
-	Shape res = block->Create_Shape();
-	for (int i = 0; i < res.size(); i++) {
-		for (int j = 0; j < res[i].size(); j++) {
-			if (res[i][j])
-				Field[x + i][y + j] = res[i][j];
-		}
-	}
-}
-Block* GameField::GetBlock(int x, int y) {
-	if (x < 0 || x >= width)
-		return nullptr;
-	if (y < 0 || y >= height)
-		return nullptr;
-	if (!Field[x][y])
-		return nullptr;
-	return AllBlocks[Field[x][y]];
-}
-void GameField::Set_WH(int w, int h) {
-	Field.resize(h);
-	for (auto& it : Field) {
-		it.resize(w);
-	}
-}
-void GameField::DeleteBlock(int x, int y, Block* Block_to_delete) {
-
 }
 
 //Arkanoid methods
