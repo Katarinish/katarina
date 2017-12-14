@@ -81,7 +81,7 @@ void Arkanoid::Draw(gdi::Graphics& canvas) {
 void Arkanoid::UpdateWorld(double dt) {
   const float delta = 0.0001f;
   if (dt < delta)
-    return;  // too small period for update, skip it.
+    return;  // too small period for update, skip it.0
 
   for (float time = 0; time <= dt; time += delta) {
     auto next_ball_pos = ball.GetNextPos(delta);
