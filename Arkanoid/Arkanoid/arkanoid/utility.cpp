@@ -62,3 +62,13 @@ CrossedSide IsCrossed(const Vector& p0,
 
   return CrossedSide::NONE;
 }
+CrossedSide IsBoardCrossed(const Vector& p0,
+	const Vector& p1,
+	const Vector& board0,
+	int length,
+	Vector* out) {
+	if (IsVectorsCrossed(p0, p1, board0, board0 + Vector(length, 0), out))
+		return CrossedSide::TOP;
+	return CrossedSide::NONE;
+}
+

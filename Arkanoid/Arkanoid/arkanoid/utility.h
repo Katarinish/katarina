@@ -42,4 +42,9 @@ const Vector operator-(const Vector&l, const Vector& r);
 const Vector operator+(const Vector&l, const Vector& r);
 const Vector operator*(const Vector& l, float r);
 
+CrossedSide IsBoardCrossed(const Vector& p0,
+	const Vector& p1,
+	const Vector& board0,
+	int length,
+	Vector* out);
 CrossedSide IsCrossed(const Vector& p0, const Vector& p1, const Vector& box_lt, Vector* out);

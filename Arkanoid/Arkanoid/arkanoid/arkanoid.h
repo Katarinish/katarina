@@ -5,6 +5,11 @@
 #include "board.h"
 #include "game_field.h"
 
+enum class PressedButton {
+	LEFT,
+	RIGHT,
+};
+
 
 class Arkanoid {
  private:
@@ -27,7 +32,9 @@ class Arkanoid {
   void Draw(gdi::Graphics& canvas);
   void UpdateWorld(double dt);
 
+
   // TODO(kk): Process user input.
+  void ProcessUserInput(PressedButton state);
 
   bool ReadyToExit();
 };
